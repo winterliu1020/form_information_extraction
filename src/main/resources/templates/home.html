@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>个人主页</title>
+</head>
+<body>
+<div class="" id="content" th:text="${session.user.userID}"> ddddd</div>
+
+<script th:inline="javascript">
+    var message = [[${message}]];
+    if(message){
+        alert(message);
+    }
+</script>
+</body>
+</html>
