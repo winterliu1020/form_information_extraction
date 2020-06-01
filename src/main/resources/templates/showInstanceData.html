@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>展示实例数据界面</title>
+
+    <!-- Custom Css -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+
+
+    <!-- Bootstrap Core Css -->
+    <link th:href="@{/plugins/bootstrap/css/bootstrap.css}" rel="stylesheet">
+
+    <!-- BootstrapTable-->
+    <!-- Bootstrap Table Css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet">
+    <link th:href="@{/bootstrapTable/bootstrap-table.min.css}" rel="stylesheet">
+
+    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <!--<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css"> -->
+
+    <style>
+        .like {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body style="padding: 100px;">
+<!-- 导航栏 -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header" style="margin-left: 100px">
+                <i class="fa fa-file-text-o navbar-brand" style="font-size:24px"></i>
+                <a class="navbar-brand" href="#">基于模板的表格信息提取系统</a>
+            </div>
+            <div style="margin-right: 100px">
+                <ul class="nav navbar-nav navbar-right">
+                    <li></i><a href="/listModel">我的模板</a></li>
+                    <li><a href="#">SVN</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span th:text="${session.user.username}"></span>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">用户信息</a></li>
+                            <li><a href="#">提出修改意见</a></li>
+
+                            <li class="divider"></li>
+                            <li><a href="#">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <input type="hidden" id="modelIDInput" th:value="${modelID}">
+
+
+<div id="toolbar">
+</div>
+<table
+        id="table"
+        data-toolbar="#toolbar"
+        data-search="true"
+        data-show-refresh="false"
+        data-show-toggle="false"
+        data-show-fullscreen="true"
+        data-show-columns="true"
+        data-show-columns-toggle-all="true"
+        data-detail-view="false"
+        data-show-export="true"
+        data-click-to-select="false"
+        data-minimum-count-columns="2"
+        data-show-pagination-switch="true"
+        data-pagination="true"
+        data-id-field="id"
+        data-page-list="[10, 25, 50, 100, all]"
+        data-show-footer="false"
+        data-side-pagination="client"
+        data-response-handler="responseHandler">
+</table>
+
+
+<!-- Jquery Core Js -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+
+<!-- Bootstrap Core Js -->
+<script th:src="@{/plugins/bootstrap/js/bootstrap.js}"></script>
+
+<!--Bootstrap Table Js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+<script th:src="@{/bootstrapTable/bootstrap-table.min.js}"></script>
+<script th:src="@{/bootstrapTable/bootstrap-table-export.min.js}"></script>
+<script th:src="@{/bootstrapTable/bootstrap-table-editable.min.js}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+<script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+
+
+
+<script>
+    var $table = $('#table')
+    var $remove = $('#remove')
+    var selections = []
+
+    function getIdSelections() {
+        return $.map($table.bootstrapTable('getSelections'), function (row) {
+            return row.id
+        })
+    }
+
+    function responseHandler(res) {
+        $.each(res.rows, function (i, row) {
+            row.state = $.inArray(row.id, selections) !== -1
+        })
+        return res
+    }
+
+    $(function() {
+        columns = [];
+        function operateFormatter(value, row, index) {
+            console.log("--------");
+            console.log(row);
+            var myhref = '/editInstanceData/' + row.instanceID;
+
+            return [
+                '<button class="like btn btn-primary" title="修改识别结果">',
+                '修改',
+                '</button>',
+                '<button style="margin-top: 5px"  class="remove btn btn-danger" title="删除识别结果">',
+                '删除',
+                '</button>'
+            ].join('')
+        };
+
+        window.operateEvents = {
+            'click .like': function (e, value, row, index) {
+                // $('#editInstanceData').attr('href','/editInstanceData/' + row.instanceID);
+                // window.open("/editInstanceData/" + row.instanceID);
+                window.location.href = "/editInstanceData/" + row.instanceID;
+                // alert('You click like action, row: ' + JSON.stringify(row))
+            },
+            'click .remove': function (e, value, row, index) {
+                console.log("要删除的instanceID：" +row.instanceID);
+
+                // 这里再发起一个ajax请求将instanceID对应的所有识别数据删掉，然后再重新加载一下
+                $.ajax({
+                    url:"/deleteInstanceByInstanceID",
+                    type:"post",
+                    data:{
+                      "instanceID":row.instanceID,
+                      "modelID":$("#modelIDInput").val()
+                    },
+                    success:function (data) {
+                        alert(data);
+                        console.log(data);
+                        window.location.reload();
+                    },
+                    error:function (data) {
+                        console.log("删除失败");
+                    }
+                });
+
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: [row.id]
+                })
+            }
+        };
+
+
+        $.ajax({
+            url:"/loadData",
+            type:"post",
+            data:{
+                "modelID":$("#modelIDInput").val()
+            },
+            success: function (data) {
+                console.log(data);
+                var arr = data.columns;
+                for (var i = 0; i < arr.length; i++) {
+                    columns.push({
+                        field: arr[i].field,
+                        title: arr[i].title,
+                        align: "center",
+                        // editable:"true"
+                        }
+                    )
+                };
+                columns.push({
+                    field: 'operate',
+                    title: '操作',
+                    align: 'center',
+                    clickToSelect: false,
+                    events: window.operateEvents,
+                    formatter: operateFormatter
+                });
+                $table.bootstrapTable({
+                    columns: columns,
+                    data:data.data
+                });
+                // $table.bootstrapTable('refreshOptions',{
+                //     columns:columns,
+                //     data:data.data,
+                //     // onEditableSave: function (field, row, oldValue, $el) {
+                //     //     console.log("行内编辑------");
+                //     // }
+                // });
+                // alert("jjj");
+            }
+        });
+
+        $table.on('check.bs.table uncheck.bs.table ' +
+            'check-all.bs.table uncheck-all.bs.table',
+            function () {
+                $remove.prop('disabled', !$table.bootstrapTable('getSelections').length)
+
+                // save your data, here just save the current page
+                selections = getIdSelections()
+                // push or splice the selections if you want to save all data selections
+            })
+        $table.on('all.bs.table', function (e, name, args) {
+            console.log(name, args)
+        })
+
+        $remove.click(function () {
+            console.log("点击remove111111-----");
+            var ids = getIdSelections();
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: ids
+            })
+            $remove.prop('disabled', true)
+        })
+
+        var data = [
+            {
+                'id': 0,
+                'name': 'Item 0',
+                'price': '$0'
+            },
+            {
+                'id': 1,
+                'name': 'Item 1',
+                'price': '$1'
+            },
+            {
+                'id': 2,
+                'name': 'Item 2',
+                'price': '$2'
+            },
+            {
+                'id': 3,
+                'name': 'Item 3',
+                'price': '$3'
+            },
+            {
+                'id': 4,
+                'name': 'Item 4',
+                'price': '$4'
+            },
+            {
+                'id': 5,
+                'name': 'Item 5',
+                'price': '$5'
+            }
+        ]
+        //$table.bootstrapTable({data: data})
+    })
+</script>
+
+
+</body>
+
+</html>

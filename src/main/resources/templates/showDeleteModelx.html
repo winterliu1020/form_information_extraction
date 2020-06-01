@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>回收站</title>
+
+    <!-- Bootstrap Table Css -->
+    <link th:href="@{/bootstrapTable/bootstrap-table.min.css}" rel="stylesheet">
+
+    <!-- Bootstrap Core Css -->
+    <link th:href="@{/plugins/bootstrap/css/bootstrap.css}" rel="stylesheet">
+    <!-- Custom Css -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+
+<body class="editModel-page" style="padding: 100px;">
+<!-- 导航栏 -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header" style="margin-left: 100px">
+                <i class="fa fa-file-text-o navbar-brand" style="font-size:24px"></i>
+                <a class="navbar-brand" href="#">基于模板的表格信息提取系统</a>
+            </div>
+            <div style="margin-right: 100px">
+                <ul class="nav navbar-nav navbar-right">
+                    <li></i><a href="/listModel">我的模板</a></li>
+                    <li><a href="#">SVN</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span th:text="${session.user.username}"></span>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">用户信息</a></li>
+                            <li><a href="#">提出修改意见</a></li>
+
+                            <li class="divider"></li>
+                            <li><a href="#">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+<!--table -->
+    <div id="toolbar">
+        <button id="remove" class="btn btn-danger" onclick="removeAllModel()">
+            清空回收站
+        </button>
+    </div>
+
+    <table id="table" class="table table-hover">
+
+    </table>
+
+<!-- Jquery Core Js -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+
+<!-- Bootstrap Core Js -->
+<script th:src="@{/plugins/bootstrap/js/bootstrap.js}"></script>
+
+<!--Bootstrap Table Js -->
+<script th:src="@{/bootstrapTable/bootstrap-table.min.js}"></script>
+
+
+<script>
+    var $table = $('#table');
+    // 清空回收站
+    function removeAllModel() {
+        alert("清空回收站");
+        // 这里再发起一个ajax请求将该用户回收站中模板全部清空，然后再重新加载一下
+        $.ajax({
+            url: "/deleteAllModelInDeleteModelArea",
+            type: "post",
+
+            success: function (data) {
+                alert(data);
+                console.log(data);
+                window.location.reload();
+            },
+            error: function (data) {
+                console.log("清空回收站失败");
+            }
+        });
+    }
+
+    $(function() {
+
+
+
+
+        function option(value, row, index) {
+            return [
+                '<a class="like" href="javascript:void(0)" title="恢复">',
+                '<i class="fa fa-heart">恢复</i>',
+                '</a>  ',
+                '<a class="remove" href="javascript:void(0)" title="彻底删除">',
+                '<i class="fa fa-trash">彻底删除</i>',
+                '</a>'
+            ].join('')
+        };
+
+        window.operateEvents = {
+            'click .like': function (e, value, row, index) {
+
+                alert('You click like action, row: ' + JSON.stringify(row))
+                alert(row.modelID);
+                // 这里再发起一个ajax请求将modelID对应的模板恢复，然后再重新加载一下
+                $.ajax({
+                    url: "/recoverModel",
+                    type: "post",
+                    data: {
+                        "modelID": row.modelID,
+                    },
+                    success: function (data) {
+                        alert(data);
+                        console.log(data);
+                        window.location.reload();
+                    },
+                    error: function (data) {
+                        console.log("恢复失败");
+                    }
+                });
+
+            },
+            'click .remove': function (e, value, row, index) {
+                console.log("要彻底删除的modelID：" + row.modelID);
+
+                // 这里再发起一个ajax请求将modelID对应的模板彻底删掉，然后再重新加载一下
+                $.ajax({
+                    url: "/deleteModelByModelID",
+                    type: "post",
+                    data: {
+                        "modelID": row.modelID,
+                    },
+                    success: function (data) {
+                        alert(data);
+                        console.log(data);
+                        window.location.reload();
+                    },
+                    error: function (data) {
+                        console.log("彻底删除失败");
+                    }
+                });
+
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: [row.id]
+                })
+            }
+        };
+
+        $table.bootstrapTable({
+            method: 'get',
+            url: "/loadDeleteModelData", // 请求路径
+            striped: true, // 是否显示行间隔色
+            pageNumber: 1, // 初始化加载第一页
+            pagination: true, // 是否分页
+            sidePagination: 'client', // server:服务器端分页|client：前端分页
+            pageSize: 5, // 单页记录数
+            pageList: [5, 20, 30],
+            // showRefresh : true,// 刷新按钮
+            // queryParams: function(params) { // 上传服务器的参数
+            //     var temp = {
+            //         name: $("#sname").val(),
+            //         viewReason: $("#viewReason").val(),
+            //     };
+            //     return temp;
+            // },
+            columns: [{
+                title: 'modelID',
+                field: 'modelID',
+                // visible: false
+            }, {
+                title: '模板名称',
+                field: 'modelName',
+
+            }, {
+                title: '发布时间',
+                field: 'modelCreateTime',
+
+            }, {
+                title: '识别数',
+                field: 'recognizeCount',
+            }, {
+                field: 'operate',
+                title: '操作',
+                align: 'center',
+                events: window.operateEvents,
+                formatter: option
+
+            }]
+        });
+    });
+
+
+
+
+    // $table.bootstrapTable({data: data})
+
+    $(function() {
+        var data = [
+            {
+                'id': 0,
+                'name': 'Item 0',
+                'price': '$0'
+            },
+            {
+                'id': 1,
+                'name': 'Item 1',
+                'price': '$1'
+            },
+            {
+                'id': 2,
+                'name': 'Item 2',
+                'price': '$2'
+            },
+            {
+                'id': 3,
+                'name': 'Item 3',
+                'price': '$3'
+            },
+            {
+                'id': 4,
+                'name': 'Item 4',
+                'price': '$4'
+            },
+            {
+                'id': 5,
+                'name': 'Item 5',
+                'price': '$5'
+            }
+        ]
+
+    })
+</script>
+
+</body>
+
+</html>

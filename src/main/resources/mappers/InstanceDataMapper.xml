@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.nchu.mappers.InstanceDataMapper">
+    <insert id="insertInstanceData" parameterType="cn.edu.nchu.entity.InstanceDataEntity">
+		insert into instance_data_tab values(null,#{instanceID},#{fieldID},#{instanceFieldValue})
+	</insert>
+
+	<select id="selectInstanceDataByModelID" resultType="cn.edu.nchu.util.TableBodyUtil">
+        SELECT instance_tab.instanceID, field_tab.fieldID,  field_tab.fieldName, instance_data_tab.instanceFieldValue FROM field_tab,
+        instance_tab, instance_data_tab, model_tab WHERE model_tab.modelID = instance_tab.modelID AND field_tab.modelID = model_tab.modelID
+        AND instance_data_tab.instanceID = instance_tab.instanceID AND instance_data_tab.fieldID = field_tab.fieldID AND model_tab.modelID = #{modleID} ORDER BY instance_tab.instanceID;
+    </select>
+
+    <delete id="deleteInstanceDataByInstanceID">
+		delete from instance_data_tab where instanceID = #{instanceID}
+	</delete>
+
+    <delete id="deleteInstanceDataByFieldID">
+		delete from instance_data_tab where fieldID = #{fieldID}
+	</delete>
+
+    <select id="selectFieldUtilListByInstanceID" resultType="cn.edu.nchu.util.FieldUtil">
+        SELECT instance_data_tab.instanceDataID, field_tab.fieldID,  field_tab.fieldName, instance_data_tab.instanceFieldValue, field_tab.leftTopX, field_tab.leftTopY, field_tab.width, field_tab.height FROM field_tab,
+        instance_tab, instance_data_tab WHERE instance_data_tab.instanceID = instance_tab.instanceID AND instance_data_tab.fieldID = field_tab.fieldID AND instance_tab.instanceID = #{instanceID} ORDER BY field_tab.fieldID;
+    </select>
+
+    <update id="updateInstanceDataByInstanceDataID">
+        update instance_data_tab set instanceFieldValue = #{instanceData} where instanceDataID = #{instanceDataID}
+    </update>
+
+</mapper>

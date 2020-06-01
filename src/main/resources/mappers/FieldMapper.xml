@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.nchu.mappers.FieldMapper">
+
+    <!--
+    <select id="findUserByUserNamePassWord" resultType="cn.edu.nchu.entity.UserEntity">
+        select * from user_tab where username = #{username} and password = #{password}
+    </select>
+    -->
+    <select id="findFieldByModelID" resultType="cn.edu.nchu.entity.FieldEntity">
+        select * from field_tab where modelID = #{modelID}
+    </select>
+
+
+
+    <insert id="insertField" parameterType="cn.edu.nchu.entity.FieldEntity">
+		insert into field_tab values(null,#{modelID},#{fieldName},#{fieldType},#{leftTopX},#{leftTopY},#{width},#{height})
+	</insert>
+
+    <delete id="deleteFieldByFieldID">
+		delete from field_tab where fieldID = #{fieldID}
+	</delete>
+
+    <select id="selectFieldCountByModelID" resultType="java.lang.Integer">
+        select count(*) from field_tab where modelID = #{modelID}
+    </select>
+
+    <select id="getFieldEntityByFieldID" resultType="cn.edu.nchu.entity.FieldEntity">
+        select * from field_tab where fieldID = #{fieldID}
+    </select>
+
+    <update id="updateFieldByFieldID">
+        update field_tab set fieldName = #{fieldName},fieldType = #{fieldType} where fieldID = #{fieldID}
+    </update>
+
+</mapper>

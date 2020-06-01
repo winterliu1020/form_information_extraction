@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>编辑模板</title>
+
+    <!-- Bootstrap Core Css -->
+    <link th:href="@{/plugins/bootstrap/css/bootstrap.css}" rel="stylesheet">
+
+    <!-- BootstrapTable-->
+    <!-- Bootstrap Table Css
+    <link th:href="@{/bootstrapTable/bootstrap-table.min.css}" rel="stylesheet">-->
+
+    <!-- Custom Css -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #selectContainer {
+            position: relative;
+            padding-left: 0px;
+            padding-right: 0px;
+            height: 800px;
+
+            border: 1px solid #111;
+            /*overflow: hidden;*/
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        #rightContext {
+            position: relative;
+            padding-left: 0px;
+            padding-right: 0px;
+            height: 800px;
+
+            border: 1px solid #111;
+            /*overflow: hidden;*/
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body class="editModel-page" style="padding: 100px; ">
+<!-- 导航栏 -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header" style="margin-left: 100px">
+                <!--
+                <div class="row">
+                    <div class="col-md-2">
+                        <i class="fa fa-file-text-o" style="font-size:24px"></i>
+                    </div>
+                    <div class="col-md-10">
+                        <a class="navbar-brand" href="#">菜鸟教程</a>
+                    </div>
+                </div>
+                -->
+
+                <i class="fa fa-file-text-o navbar-brand" style="font-size:24px"></i>
+                <a class="navbar-brand" href="#">基于模板的表格信息提取系统</a>
+            </div>
+            <div style="margin-right: 100px">
+                <ul class="nav navbar-nav navbar-right">
+                    <li></i><a href="/listModel">我的模板</a></li>
+                    <li><a href="#">SVN</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span th:text="${session.user.username}"></span>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">用户信息</a></li>
+                            <li><a href="#">提出修改意见</a></li>
+
+                            <li class="divider"></li>
+                            <li><a href="#">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row">
+
+        <div id="selectContainer" class="col-md-8">
+            <div class="fileDiv">
+                <!--<img id="ok" th:src="@{'modelImage/' + ${modelUrl}}">--> <!--这里要利用modelController中createModel的model中传过来的modelUrl拿到模板图片文件  ${modelUrl}} -->
+<!--                <img id="ok" src="/images/999.jpeg">-->
+                <img  id="ok" th:src="@{'/modelImages/' + ${modelUrl}}" alt="图片丢了">
+            </div>
+        </div>
+<!--        <div class="col-md-1"></div>-->
+        <div id="rightContext" class="col-md-4" style="overflow-x: auto; overflow-y: auto">
+            <!--右边区域展示区块数据-->
+            <!--设置一个隐藏input存储当前编辑模板的modelID-->
+            <input type="hidden" id="modelID" name="modelID" th:value="${modelID}">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">fieldID</th>
+                    <th scope="col">fieldName</th>
+                    <th scope="col">fieldType</th>
+                    <th scope="col">左上角的X坐标</th>
+                    <th scope="col">左上角的Y坐标</th>
+                    <th scope="col">区块宽度</th>
+                    <th scope="col">区块高度</th>
+                    <th scope="col">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="field,fieldStat : ${fields}">
+                        <td th:id="'fieldID'+${fieldStat.index}" th:text="${field.fieldID}"></td>
+                        <td th:id="'fieldName'+${fieldStat.index}" th:text="${field.fieldName}"></td>
+                        <td th:id="'fieldType'+${fieldStat.index}" th:text="${field.fieldType}"></td>
+                        <td th:id="'leftTopX'+${fieldStat.index}" th:text="${field.leftTopX}"></td>
+                        <td th:id="'leftTopY'+${fieldStat.index}" th:text="${field.leftTopY}"></td>
+                        <td th:id="'width'+${fieldStat.index}" th:text="${field.width}"></td>
+                        <td th:id="'height'+${fieldStat.index}" th:text="${field.height}"></td>
+                        <td>
+<!--                            <div class="row">-->
+<!--                                &lt;!&ndash;-->
+<!--                                <div class="col-md-1">-->
+<!--                                    <i class="material-icons" th:onclick="'editField('+${fieldStat.index}+','+${field.fieldID}+')'" data-toggle="modal">mode_edit</i>-->
+<!--                                </div>-->
+<!--                                &ndash;&gt;-->
+<!--                                <div class="col-md-1">-->
+                                    <button th:onclick="'deleteField('+${field.fieldID}+')'" class="btn btn-danger">删除</button>
+<!--                                </div>-->
+<!--                                <div class="col-md-1">-->
+                                    <button style="margin-top: 5px" th:onclick="'editFieldModal('+${field.fieldID}+')'" class="btn btn-primary">编辑</button>
+<!--                                </div>-->
+<!--                            </div>-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 添加区块弹出的模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">输入区块信息</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="fieldName" name="fieldName" placeholder="请输入区块名称">
+                    <label for="selectOption">选择区块类型</label>
+                    <select class="form-control" id="selectOption" name="selectOption">
+                        <option th:value="GeneralAccurateOCR">通用印刷体识别高精度版</option>
+                        <option th:value="EnglishOCR">英文识别</option>
+                        <option th:value="GeneralBasicOCR">通用印刷体识别一般版</option>
+                        <option th:value="GeneralFastOCR">通用印刷体识别高速版</option>
+                        <option th:value="GeneralHandwritingOCR">通用手写体识别</option>
+                    </select>
+                    <label for="leftTopX">左上角X坐标：</label>
+                    <input type="text" id="leftTopX" name="leftTopX">
+                    <label for="leftTopY">左上角Y坐标：</label>
+                    <input type="text" id="leftTopY" name="leftTopY">
+                    <label for="width">width：</label>
+                    <input type="text" id="width" name="width">
+                    <label for="height">height：</label>
+                    <input type="text" id="height" name="height">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                    </button>
+                    <button class="btn btn-primary" id="commit" onclick="addField()">
+                        确认
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+    <!-- 编辑区块弹出的模态框（Modal） -->
+    <div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelInEditFieldModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabelInEditFieldModal">编辑区块信息</h4>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="fieldIDInEditFieldModal" name="fieldIDInEditFieldModal">
+                    <input type="text" class="form-control" id="fieldNameInEditFieldModal" name="fieldNameInEditFieldModal">
+                    <label for="selectOption">选择区块类型</label>
+                    <select class="form-control" id="selectOptionInEditFieldModal" name="selectOptionInEditFieldModal">
+                        <option th:value="GeneralAccurateOCR">通用印刷体识别高精度版</option>
+                        <option th:value="EnglishOCR">英文识别</option>
+                        <option th:value="GeneralBasicOCR">通用印刷体识别一般版</option>
+                        <option th:value="GeneralFastOCR">通用印刷体识别高速版</option>
+                        <option th:value="GeneralHandwritingOCR">通用手写体识别</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                    </button>
+                    <button class="btn btn-primary" id="editFieldFinish" onclick="editField()">
+                        编辑完成
+                    </button>
+                </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <script>
+        window.onload = function () {
+            document.documentElement.style.overflowY = 'hidden';
+        };
+
+        function addField() {
+            alert("888");
+            $.ajax({
+                url : "/addField",
+                type : "post",
+                data : {
+                    "modelID" : $("#modelID").val(),
+                    "fieldName" : $("#fieldName").val(),
+                    "fieldType" : $("#selectOption").val(),
+                    "leftTopX" : $("#leftTopX").val(),
+                    "leftTopY" : $("#leftTopY").val(),
+                    "width" : $("#width").val(),
+                    "height" : $("#height").val()
+                },
+                success : function (data) {
+                    alert(data);
+                    window.location.reload();
+                }
+            });
+        }
+
+        // 弹出编辑区块模态框函数
+        function editFieldModal(fieldID) {
+            console.log("调用editFieldModel方法");
+            $('#editFieldModal').modal('show');
+
+            // ajax利用fieldID去数据库中拿到这个fieldEntity
+            $.ajax({
+                url : "/getFieldEntityByFieldID",
+                type : "post",
+                data : {
+                    "fieldID" : fieldID,
+                },
+                success : function (data) {
+                    // 填充这个弹出的编辑区块模态框
+                    $("#fieldIDInEditFieldModal").val(fieldID);
+                    $("#fieldNameInEditFieldModal").val(data.fieldName);
+                    $("#selectOptionInEditFieldModal").val(data.fieldType);
+                }
+            });
+        }
+
+        // 点击确认编辑
+        function editField() {
+            $.ajax({
+                url : "/editField",
+                type : "get",
+                data : {
+                    "fieldID":$("#fieldIDInEditFieldModal").val(),
+                    "fieldName":$("#fieldNameInEditFieldModal").val(),
+                    "fieldType":$("#selectOptionInEditFieldModal").val()
+                },
+                success : function(data) {
+                    alert(data);
+                    window.location.reload();
+                }
+            });
+        }
+
+        // 编辑模态框
+        function editModel() {
+
+        }
+
+        function deleteField(fieldID) {
+            console.log("调用deleteField方法");
+            var r = confirm("点击删除会将利用该区块识别的所有数据一并删除，是否确定删除？");
+            if (r == true) {
+                $.ajax({
+                    url : "/deleteField/"+fieldID,
+                    type : "get",
+                    data : {
+                        "modelID" : $("#modelID").val(),
+                    },
+                    success : function(data) {
+                        alert(data);
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+
+    <script>
+        (function () {
+            var mouseStopId;
+            var mouseOn = false;
+            var startX = 0;
+            var startY = 0;
+            document.getElementById("ok").onmousedown = function (e) {
+                //alert("onmousedown");
+                clearEventBubble(e);
+                if (e.buttons !== 1 || e.which !== 1) return;
+
+                //mouseStopId = setTimeout(function () {
+                    mouseOn = true;
+                    var selectContainer = document.getElementById('selectContainer');
+                    startX = e.clientX - selectContainer.offsetLeft + selectContainer.scrollLeft;
+                    startY = e.clientY - selectContainer.offsetTop + selectContainer.scrollTop;
+                    var selDiv = document.createElement('div');
+                    selDiv.style.cssText = 'position:absolute;width:0;height:0;margin:0;padding:0;border:1px dashed #eee;background-color:#aaa;z-index:1000;opacity:0.6;display:none;';
+                    selDiv.id = 'selectDiv';
+                    document.getElementById('selectContainer').appendChild(selDiv);
+                    selDiv.style.left = startX + 'px';
+                    selDiv.style.top = startY + 'px';
+                //}, 300);
+                //alert(startX + ":" + startY);
+            }
+
+            document.getElementById("ok").onmousemove = function (e) {
+                //alert("onmousemove");
+                if (!mouseOn) return;
+                clearEventBubble(e);
+                var selectContainer = document.getElementById('selectContainer');
+                var _x = e.clientX - selectContainer.offsetLeft + selectContainer.scrollLeft;
+                var _y = e.clientY - selectContainer.offsetTop + selectContainer.scrollTop;
+                var _H = selectContainer.clientHeight;
+                var _W = selectContainer.clientWidth;
+                // 向下拖拽
+                if (_y >= _H && selectContainer.scrollTop <= _H) {
+                    selectContainer.scrollTop += _y - _H;
+                }
+                // 向上拖拽
+                if (e.clientY <= selectContainer.offsetTop && selectContainer.scrollTop > 0) {
+                    selectContainer.scrollTop = Math.abs(e.clientY - selectContainer.offsetTop);
+                }
+                var selDiv = document.getElementById('selectDiv');
+                selDiv.style.display = 'block';
+                selDiv.style.left = Math.min(_x, startX) + 'px';
+                selDiv.style.top = Math.min(_y, startY) + 'px';
+                selDiv.style.width = Math.abs(_x - startX) + 'px';
+                selDiv.style.height = Math.abs(_y - startY) + 'px';
+            };
+
+            document.onmouseup = function (e) {
+                console.log("onmouseup");
+                if (!mouseOn) {
+                    console.log("点击的是img之外的onmouseup");
+                    return;
+                }
+                clearEventBubble(e);
+                var selDiv = document.getElementById('selectDiv');
+                var fileDivs = document.getElementsByClassName('fileDiv');
+                var selectedEls = [];
+                var l = selDiv.offsetLeft; // x轴
+                var t = selDiv.offsetTop; // y轴
+                var w = selDiv.offsetWidth;
+                var h = selDiv.offsetHeight;
+                var img = document.getElementById('ok');
+                console.log("显示尺寸：", img.width, img.height);
+                console.log("实际尺寸：", img.naturalWidth, img.naturalHeight);
+
+                if (l < 0 || t < 0 || w <= 0 || h <= 0 || l + w > img.width || t + h > img.height) {
+                    alert("画框失败，请在指定区域画框！");
+                    selDiv.style.display = 'none';
+                    mouseOn = false;
+                } else {
+                    // 画框成功则弹出模态框
+                    for (var i = 0; i < fileDivs.length; i++) {
+                        var sl = fileDivs[i].offsetWidth + fileDivs[i].offsetLeft;
+                        var st = fileDivs[i].offsetHeight + fileDivs[i].offsetTop;
+
+                        if (sl > l && st > t && fileDivs[i].offsetLeft < l + w && fileDivs[i].offsetTop < t + h) {
+                            selectedEls.push(fileDivs[i]);
+                        }
+                    }
+                    console.log(selectedEls + "jjj");
+                    selDiv.style.display = 'none';
+                    mouseOn = false;
+
+                    // 给4个参数赋值
+                    //document.getElementById("leftX").innerHTML(l);
+                    $("#leftTopX").val(l);
+                    $("#leftTopY").val(t);
+                    $("#width").val(w);
+                    $("#height").val(h);
+
+
+                    $('#myModal').modal('show');
+                    console.log(l + ":" + t + ":" + w + ":" + h + ":"); // 左上角的坐标（l,t) 和div框的宽、高
+                }
+            };
+
+            function clearEventBubble (e) {
+                if (e.stopPropagation) e.stopPropagation();
+                else e.cancelBubble = true;
+
+                if (e.preventDefault) e.preventDefault();
+                else e.returnValue = false;
+            }
+        })();
+    </script>
+
+
+
+
+
+
+<!-- Jquery Core Js -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+
+<!-- Bootstrap Core Js -->
+<script th:src="@{/plugins/bootstrap/js/bootstrap.js}"></script>
+
+
+</body>
+
+</html>

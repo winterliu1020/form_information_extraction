@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>编辑实例数据</title>
+
+    <!-- Bootstrap Core Css -->
+    <link th:href="@{/plugins/bootstrap/css/bootstrap.css}" rel="stylesheet">
+
+    <!-- Custom Css -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #selectContainer {
+            position: relative;
+            padding-left: 0px;
+            padding-right: 0px;
+            height: 800px;
+
+            border: 1px solid #111;
+            /*overflow: hidden;*/
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        #rightContext {
+            position: relative;
+            padding-left: 0px;
+            padding-right: 0px;
+            height: 800px;
+
+            border: 1px solid #111;
+            /*overflow: hidden;*/
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body class="editModel-page" style="padding: 100px; ">
+<!-- 导航栏 -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header" style="margin-left: 100px">
+                <i class="fa fa-file-text-o navbar-brand" style="font-size:24px"></i>
+                <a class="navbar-brand" href="#">基于模板的表格信息提取系统</a>
+            </div>
+            <div style="margin-right: 100px">
+                <ul class="nav navbar-nav navbar-right">
+                    <li></i><a href="/listModel">我的模板</a></li>
+                    <li><a href="#">SVN</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span th:text="${session.user.username}"></span>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">用户信息</a></li>
+                            <li><a href="#">提出修改意见</a></li>
+
+                            <li class="divider"></li>
+                            <li><a href="#">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row">
+
+        <div id="selectContainer" name="selectContainer" class="col-md-6" style="position: relative;" >
+            <div class="fileDiv" style="z-index: 2;position:absolute" id="fileDiv" th:name="fileDiv">
+<!--                <img id="ok" src="/images/999.jpeg">&lt;!&ndash;这里img的src是传过来的instanceUrl;-->
+                <img id="ok" th:src="@{'/instanceImages/' + ${instanceUrl}}" alt="图片丢了">
+            </div>
+            <div id="redDiv" style="border:3px solid #F00; position: absolute;z-index: 4;" ></div>
+        </div>
+        <div class="col-md-1"></div>
+        <div id="rightContext" class="col-md-5" style="overflow-x: auto; overflow-y: auto">
+            <!--右边区域展示区块数据-->
+            <!--设置一个隐藏input存储当前编辑实例的instanceID-->
+            <input type="hidden" id="instanceID" name="instanceID" th:value="${instanceID}">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">instanceDataID</th>
+                    <th scope="col">fieldID</th>
+                    <th scope="col">fieldName</th>
+                    <th scope="col">fieldValue</th>
+                    <th scope="col">leftTopX</th>
+                    <th scope="col">leftTopY</th>
+                    <th scope="col">width</th>
+                    <th scope="col">height</th>
+
+                    <th scope="col">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="field,fieldStat : ${fieldUtilList}" th:onmouseover="'showRedDiv('+${field.instanceDataID}+')'">
+                        <td th:id="'instanceDataID'+${field.instanceDataID}" th:text="${field.instanceDataID}"></td>
+                        <td th:id="'fieldID'+${field.instanceDataID}" th:text="${field.fieldID}"></td>
+                        <td th:id="'fieldName'+${field.instanceDataID}" th:text="${field.fieldName}"></td>
+                        <td>
+                            <textarea th:id="'fieldValue'+${field.instanceDataID}" type="text" th:text="${field.instanceFieldValue}"></textarea>
+                        </td>
+                        <td th:id="'leftTopX'+${field.instanceDataID}" th:text="${field.leftTopX}"></td>
+                        <td th:id="'leftTopY'+${field.instanceDataID}" th:text="${field.leftTopY}"></td>
+                        <td th:id="'width'+${field.instanceDataID}" th:text="${field.width}"></td>
+                        <td th:id="'height'+${field.instanceDataID}" th:text="${field.height}"></td>
+
+                        <td>
+                            <button th:onclick="'updateFieldValue('+${field.instanceDataID}+')'" class="btn btn-primary">确认修改</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function () {
+            document.documentElement.style.overflowY = 'hidden';
+        };
+
+        function showRedDiv(instanceDataID) {
+            console.log(instanceDataID+"--------dd:");
+            // $("#redDiv").css("marginLeft",$("#leftTopX" + instanceDataID).text());
+            // $("#redDiv").css("marginTop",$("#leftTopY" + instanceDataID).text());
+            document.getElementById("redDiv").style.marginLeft = $("#leftTopX" + instanceDataID).text() + "px";
+            document.getElementById("redDiv").style.marginTop = $("#leftTopY" + instanceDataID).text() + "px";
+            // $("#redDiv").style.marginLeft = $("#leftTopX" + instanceDataID).text() + "px";
+            // $("#redDiv").style.marginTop = $("#leftTopY" + instanceDataID).text() + "px";
+            // $("#redDiv").marginLeft = $("#leftTopX" + instanceDataID).text();
+            // $("#redDiv").marginTop = $("#leftTopY" + instanceDataID).text();
+            $("#redDiv").width($("#width" + instanceDataID).text());
+            $("#redDiv").height($("#height" + instanceDataID).text());
+
+            // 定位到红框位置
+            console.log("红框坐标 ：" + $("#leftTopY" + instanceDataID).text());
+            $("#selectContainer").scrollTop($("#leftTopY" + instanceDataID).text());
+            $("#selectContainer").scrollLeft($("#leftTopX" + instanceDataID).text());
+        }
+
+        function updateFieldValue(instanceDataID) {
+            // alert("888ii---" + $("#fieldValue" + instanceID).val());
+            $.ajax({
+                url : "/updateInstanceDataByInstanceDataID",
+                type : "post",
+                data : {
+                    "instanceDataID" : instanceDataID,
+                    "instanceData" : $("#fieldValue" + instanceDataID).val()
+                },
+                success : function (data) {
+                    alert(data);
+                    window.location.reload();
+                },
+                error: function (data) {
+                    alert("shibaidd");
+                }
+            });
+        }
+    </script>
+
+<!-- Jquery Core Js -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+
+<!-- Bootstrap Core Js -->
+<script th:src="@{/plugins/bootstrap/js/bootstrap.js}"></script>
+
+
+</body>
+
+</html>

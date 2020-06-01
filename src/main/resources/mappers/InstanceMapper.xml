@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.nchu.mappers.InstanceMapper">
+    <insert id="insertInstance" parameterType="cn.edu.nchu.entity.InstanceEntity" useGeneratedKeys="true" keyProperty="instanceID">
+		insert into instance_tab values(null,#{modelID},#{instanceUrl})
+	</insert>
+
+	<select id="selectInstanceCountByModelID" resultType="java.lang.Integer">
+        select count(*) from instance_tab where modelID = #{modelID}
+    </select>
+
+    <delete id="deleteInstanceByInstanceID">
+		delete from instance_tab where instanceID = #{instanceID}
+	</delete>
+
+	<select id="selectInstanceUrlByInstanceID" resultType="java.lang.String">
+        select instanceUrl from instance_tab where instanceID = #{instanceID}
+    </select>
+</mapper>

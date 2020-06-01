@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard | Nadhif - Responsive Admin Template</title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap-table/1.15.4/bootstrap-table.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.15.4/bootstrap-table.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.15.4/locale/bootstrap-table-zh-CN.min.js"></script>
+</head>
+<body>
+<a href="javascript:;"  id="remove"><span class="hidden-480">清空回收站</span></a>
+<table id="mytab" class="table table-hover"></table>
+<script>
+    $(function() {
+        function option(value, row, index) {
+            return [
+                '<a class="like" href="javascript:void(0)" title="恢复">',
+                '<i class="fa fa-heart"></i>',
+                '</a>  ',
+                '<a class="remove" href="javascript:void(0)" title="彻底删除">',
+                '<i class="fa fa-trash"></i>',
+                '</a>'
+            ].join('')
+        };
+        window.operateEvents = {
+            'click .like': function (e, value, row, index) {
+
+                alert('You click like action, row: ' + JSON.stringify(row))
+                // 这里再发起一个ajax请求将modelID对应的模板恢复，然后再重新加载一下
+                $.ajax({
+                    url: "/recoverModel",
+                    type: "post",
+                    data: {
+                        "modelID": row.modelID,
+                    },
+                    success: function (data) {
+                        alert(data);
+                        console.log(data);
+                        window.location.reload();
+                    },
+                    error: function (data) {
+                        console.log("恢复失败");
+                    }
+                });
+
+            },
+            'click .remove': function (e, value, row, index) {
+                console.log("要彻底删除的modelID：" + row.modelID);
+
+                // 这里再发起一个ajax请求将modelID对应的模板彻底删掉，然后再重新加载一下
+                $.ajax({
+                    url: "/deleteModelByModelID",
+                    type: "post",
+                    data: {
+                        "modelID": row.modelID,
+                    },
+                    success: function (data) {
+                        alert(data);
+                        console.log(data);
+                        window.location.reload();
+                    },
+                    error: function (data) {
+                        console.log("彻底删除失败");
+                    }
+                });
+
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: [row.id]
+                })
+            }
+        };
+
+        // // 定义删除、更新按钮
+        // function option(value, row, index) {
+        //     var htm = "";
+        //     htm += '<button id="dupdevice" deviceId="' + value +
+        //         '" onclick="updDevice(' + value + ')">恢复</button>';
+        //
+        //     htm += '<button id="dupdevice" deviceId="' + value +
+        //         '" onclick="updDevice(' + value + ')">彻底删除</button>';
+        //     return htm;
+        // }
+
+        //表格超出宽度鼠标悬停显示td内容
+        function paramsMatter(value, row, index) {
+            var span = document.createElement("span");
+            span.setAttribute("title", value);
+            span.innerHTML = value;
+            return span.outerHTML;
+        }
+
+        //td宽度以及内容超过宽度隐藏
+        function formatTableUnit(value, row, index) {
+            return {
+                css: {
+                    "white-space": "nowrap",
+                    "text-overflow": "ellipsis",
+                    "overflow": "hidden",
+                    "max-width": "60px"
+                }
+            }
+        }
+
+        // 删除按钮事件
+        $("#remove").on("click", function () {
+
+            if (!confirm("是否确认删除？"))
+                return;
+            var rows = $("#mytab").bootstrapTable('getSelections'); // 获得要删除的数据
+            if (rows.length == 0) { // rows 主要是为了判断是否选中，下面的else内容才是主要
+                alert("请先选择要删除的记录!");
+                return;
+            } else {
+                var ids = new Array(); // 声明一个数组
+                $(rows).each(function () { // 通过获得别选中的来进行遍历
+                    ids.push(this.id); // cid为获得到的整条数据中的一列
+                });
+
+                //后端删除的方法
+                deleteMs(ids)
+            }
+
+        })
+
+    });
+
+
+    $('#mytab').bootstrapTable({
+        method: 'get',
+        url: "/loadDeleteModelData", // 请求路径
+        striped: true, // 是否显示行间隔色
+        pageNumber: 1, // 初始化加载第一页
+        pagination: true, // 是否分页
+        sidePagination: 'client', // server:服务器端分页|client：前端分页
+        pageSize: 5, // 单页记录数
+        pageList: [5, 20, 30],
+        // showRefresh : true,// 刷新按钮
+        queryParams: function(params) { // 上传服务器的参数
+            var temp = {
+                name: $("#sname").val(),
+                viewReason: $("#viewReason").val(),
+            };
+            return temp;
+        },
+        columns: [{
+            title: 'modelID',
+            field: 'modelID',
+            visible: false
+        }, {
+            title: '模板名称',
+            field: 'modelName',
+
+        }, {
+            title: '发布时间',
+            field: 'modelCreateTime',
+
+        }, {
+            title: '识别数',
+            field: 'recognizeCount',
+        }, {
+            field: 'operate',
+            title: '操作',
+            align: 'center',
+            clickToSelect: false,
+            events: window.operateEvents,
+            formatter: option
+
+        }]
+    });
+
+
+
+
+</script>
+</body>
+
+</html>

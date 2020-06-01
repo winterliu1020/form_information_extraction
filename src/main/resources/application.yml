@@ -1,12 +1,31 @@
 server:
   port: 8080
+#文件上传路径
+
+environments:
+  dev:
+    url: https://dev.example.com
+    name: Developer Setup
+  prod:
+    url: https://another.example.com
+    name: My Cool App
+
+
+
 spring:
+#  resources:
+#    static-locations:
+#
+#  mvc:
+#    static-path-pattern: /**
+
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
       url: jdbc:mysql://localhost:3306/form_information_extraction?useUnicode=true&characterEncoding=utf-8&useSSL=false
       username: root
-      password: Nchu19980321lwt&lc
+#      password: Nchu19980321lwt&lc
+      password: 19980321lwt
       initial-size: 5
       min-idle: 5
       max-active: 20
@@ -39,11 +58,9 @@ mybatis:
   mapper-locations: classpath:mappers/*.xml
   type-aliases-package: cn.edu.nchu.entity
 
-pagehelper:
-  helper-dialect: mysql
-  reasonable: true #开启优化，<1返回第一页
-  support-methods-arguments: true #是否支持接口参数来传递分页参数，默认false
-  page-size-zero: false #pageSize=0 返回所有
-  params: count=countSql
+
+
+
+
 
 

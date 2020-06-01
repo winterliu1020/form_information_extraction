@@ -1,17 +1,318 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>个人主页</title>
-</head>
-<body>
-<div class="" id="content" th:text="${session.user.userID}"> ddddd</div>
+	<meta charset="utf-8">
+	<title>主页</title>
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
 
-<script th:inline="javascript">
-    var message = [[${message}]];
-    if(message){
-        alert(message);
-    }
+	<!-- Bootstrap Core Css -->
+	<link th:href="@{/plugins/bootstrap/css/bootstrap.css}" rel="stylesheet">
+
+	<!-- Custom Css -->
+	<link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body style="padding: 100px">
+
+<!-- 导航栏 -->
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container-fluid">
+		<div class="navbar-header" style="margin-left: 100px">
+			<i class="fa fa-file-text-o navbar-brand" style="font-size:24px"></i>
+			<a class="navbar-brand" href="#">基于模板的表格信息提取系统</a>
+		</div>
+		<div style="margin-right: 100px">
+			<ul class="nav navbar-nav navbar-right">
+				<li></i><a href="/listModel">我的模板</a></li>
+				<li><a href="#">SVN</a></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+						<span th:text="${session.user.username}"></span>
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="#">用户信息</a></li>
+						<li><a href="#">提出修改意见</a></li>
+						
+						<li class="divider"></li>
+						<li><a href="#">退出</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<!-- 中心区域内容 -->
+<div class="row">
+	<div class="col-md-1">
+		
+	</div>
+	<div class="col-md-2">
+		<div class="row">
+			<button type="button" class="btn btn-primary btn-lg" style="font-size: 24px" data-toggle="modal" data-target="#myModal">创建模板</button>
+		</div>
+		<!-- 创建模板模态框（Modal） -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+							&times;
+						</button>
+						<h4 class="modal-title" id="myModalLabel">
+							创建模板
+						</h4>
+					</div>
+					<form role="form" action="/createModel" enctype="multipart/form-data" method="post">
+						<div class="modal-body">
+							<!--隐藏带有userID的input-->
+							<input type="hidden" id="userID" name="userID" th:value="${session.user.userID}">
+							<div class="form-group">
+								<input type="text" class="form-control" id="modelName" name="modelName" placeholder="请输入模板名称">
+							</div>
+							<div class="form-group">
+								<label for="inputFile">导入模板的图片(JPG/PNG)图片尺寸应满足：width <= 1500 && height <= 2500 </label>
+								<input type="file" id="inputFile" name="inputFile" accept="image/jpeg,image/jpg,image/png" onchange="handleChange(this)">
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+							</button>
+							<button type="submit" class="btn btn-primary" id="commit">
+								立即创建
+							</button>
+						</div>
+					</form>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal -->
+		</div>
+
+		<!--限制上传图片的大小和规格(宽度和高度)-->
+		<script>
+			function handleChange(file) {
+				alert("panduan");
+				$("#commit").attr("disabled", true);
+				var fileTypes = [".jpg", ".png", ".jpeg"];  //我们所需要的图片格式
+				var filePath = file.value;
+				if (filePath) {
+					alert("panduan22" + filePath);
+					var filePic = file.files[0];            //选择的文件内容--图片
+					var fileType = filePath.slice(filePath.indexOf("."));   //选择文件的格式
+					alert("panduan23" + fileType);
+					var fileSize = file.files[0].size;            //选择文件的大
+					if (fileTypes.indexOf(fileType) == -1) {  //判断文件格式是否符合要求
+						alert("文件格式不符合要求！");
+						return
+					}
+					if (fileSize > 3 * 1024 * 1024) {
+						alert("文件大小不能超过3M！");
+						return
+					}
+
+					var reader = new FileReader();
+					reader.readAsDataURL(filePic);
+					reader.onload = function (e) {
+						var data = e.target.result;
+						//加载图片获取图片真实宽度和高度
+						var image = new Image();
+						image.onload = function () {
+							var width = image.width;
+							var height = image.height;
+							if (width <= 1500 && height <= 2500) {  //判断文件像素
+								//上传图片
+								$("#commit").attr("disabled", false);
+							} else {
+								alert("图片尺寸应小于：1500*2500！width <= 1500 && height <= 2500");
+								return;
+							}
+						};
+						image.src = data;
+					};
+				} else {
+					return
+				}
+			}
+		</script>
+
+
+
+		<div class="row" style="margin-top: 50px">
+			<ul class="list-group">
+				<a href="/listModel">
+					<li class="list-group-item">全部模板</li>
+				</a>
+
+			    <li class="list-group-item">星标模板</li>
+			    <li class="list-group-item">文件夹</li>
+
+				<a href="/showDeleteModelArea">
+					<li class="list-group-item">回收站</li>
+				</a>
+
+			</ul>
+		</div>
+
+
+	</div>
+	<div class="col-md-8" style="margin-left: 100px">
+		<div class="row">
+			<div class="col-md-2">
+				<h4>模板列表</h4>
+			</div>
+			<div class="col-md-6">
+			</div>
+			<!--模糊查询模板 -->
+			<div class="col-md-4">
+				<form method="post" action="/listModelWithQueryParam" class="bs-example bs-example-form" role="form">
+					<div class="input-group">
+	                    <input id="queryParam" name="queryParam" type="text" class="form-control" size="35" placeholder="输入要查询的模板名称...">
+	                    <span class="input-group-btn">
+	                        <button class="btn btn-default" type="submit">查询</button>
+	                    </span>
+	                </div><!-- /input-group -->
+	            </form>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div th:each="model,modelStat : ${models}" class="card">
+					<div class="header">
+						<div class="row">
+							<div class="col-md-7">
+								<span class="font-20" style="margin-right: 60px" th:text="${model.getModelName()}"></span>
+							</div>
+
+							<div class="col-md-5">
+								<span>ID:</span><span id="modelID" name="modelID" th:text="${model.getModelID()}"></span>
+								<!-- 灰色竖直线 -->
+								<span style="height: 50px; border: 1px solid #9E9E9E; margin-right: 10px; margin-left: 10px;"></span>
+								<span>识别数:</span><span th:id="'recognizeCount'+${model.modelID}" th:text="${model.recognizeCount}"></span>
+								<!-- 灰色竖直线 -->
+								<span style="height: 50px; border: 1px solid #9E9E9E; margin-right: 10px; margin-left: 10px;"></span>
+								<span>创建时间:</span><span th:text="${#dates.format(model.getModelCreateTime(),'yyyy-MM-dd HH:mm')}"></span>
+							</div>
+						</div>
+
+					</div>
+					<div class="body">
+						<div class="row">
+							<div class="col-md-8">
+								<a class="fa fa-file-text-o" style="font-size:16px" th:href="'/editModel/' + ${model.modelID}">编辑模板</a>
+							</div>
+							<div class="col-md-4">
+								<i class="fa fa-file-text-o" style="font-size:16px" th:onclick="'startRecognize(' + ${model.modelID} + ')'">开始识别</i>
+								<a class="fa fa-file-text-o" style="font-size:16px" th:href="'/showInstanceData/' + ${model.modelID}">查看识别结果</a>
+								<i class="fa fa-file-text-o" style="font-size:16px"  id="modelDelete" th:onclick="'deleteModel(' + ${model.modelID} + ')'">删除</i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-1">
+		
+	</div>
+
+
+	<!-- 点击开始识别弹出的模态框（Modal） -->
+	<div class="modal fade" id="startRecognizeModal" tabindex="-1" role="dialog" aria-labelledby="startRecognizeModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="startRecognizeModalLabel">请选择需要识别的纸质文档图片(可多选)</h4>
+				</div>
+
+				<form method="post" enctype="multipart/form-data" id="startRecognizeForm">
+					<div class="modal-body">
+
+							<input type="text" th:type="hidden" id="modelIDInModel" th:name="modelIDInModel">
+							<input type="file" name="instanceFiles" value="请选择文件" multiple>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消
+						</button>
+						<button class="btn btn-primary"  onclick="start()">
+							识别
+						</button>
+					</div>
+				</form>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+
+
+</div>
+
+<script>
+	function startRecognize(modelID) {
+
+		$("#modelIDInModel").val(modelID);
+		$('#startRecognizeModal').modal('show');
+	}
+
+	function deleteModel(modelID) {
+		if (confirm("是否确定删除该模板？")) {
+
+			$.ajax({
+				url:"/moveToDeleteModelArea",
+				type:"post",
+				data:{
+					"modelID":modelID
+				},
+				success:function (data) {
+					alert(data);
+					alert("已将该模板移至回收站");
+					console.log(data);
+					window.location.reload();
+				},
+				error:function (data) {
+					console.log("删除失败");
+				}
+			});
+			return true;
+		}
+		console.log("meiyou");
+		return false;
+	}
+
+
+
+	function showInstanceData(modelID) {
+
+	}
+
+	function start() {
+		var formData = new FormData($("#startRecognizeForm")[0]);
+		$.ajax({
+			url:"/startRecognize",
+			type:"post",
+			enctype:"multipart/form-data",
+			data:formData,
+			processData:false,
+			contentType:false,
+			async:false,
+			success:function (data) {
+				if(data){
+					console.log(data);
+					alert(data.message);
+					//document.getElementById("recognizeCount"+data.modelID).innerHTML=data.recognizeCount;
+					//$('#recognizeCount'+data.modelID).html(23); //赋值
+					window.location.reload();
+				}
+			}
+		});
+	}
+
 </script>
+
+<!-- Jquery Core Js -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+
+<!-- Bootstrap Core Js -->
+<script th:src="@{/plugins/bootstrap/js/bootstrap.js}"></script>
 </body>
 </html>

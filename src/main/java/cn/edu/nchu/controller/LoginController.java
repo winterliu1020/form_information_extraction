@@ -20,14 +20,34 @@ public class LoginController implements WebMvcConfigurer{
     @Autowired
     private UserService userService;
 
+    /**
+     * @name: addViewControllers
+     * @description: 页面控制，这个函数可以不用每个请求都写一个controller，只需要加一行registry.addViewController就行了
+     * @param registry
+     * @return: void
+     * @date: 2020-03-18 16:12
+     * @auther: liuwentao
+     *
+    */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("/sign-in");
+        registry.addViewController("/").setViewName("sign-in");
         registry.addViewController("/toRegister").setViewName("sign-up");
     }
 
 
-
+    /**
+     * @name: login
+     * @description: 登录请求
+     * @param username
+     * @param password
+     * @param session
+     * @param model
+     * @return: java.lang.String
+     * @date: 2020-03-18 16:14
+     * @auther: liuwentao
+     *
+    */
     @RequestMapping("/login")
     public String login(String username, String password, HttpSession session, RedirectAttributesModelMap model) {
         UserEntity userEntity = userService.findUserByUserNamePassWord(username, password);

@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 public class FileController {
 
 
-    private String folder = "/Users/liuwentao/Code/upload/";
+    private String folder = "/tmp/upload/";
 
     /**
      * @name: upload

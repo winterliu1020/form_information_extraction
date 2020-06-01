@@ -36,6 +36,7 @@ public class FileUtil {
         }
         // 判断附件是否为空，为空就附件字段为null
         if (file != null && !file.isEmpty()) {
+            System.out.println("FileUtil中传过来的文件不为空");
             String fileName = file.getOriginalFilename();
             String suffix = fileName.substring(fileName.lastIndexOf(".") + 1); // 文件后缀
             String newFileName = new Date().getTime() + "." + suffix;
@@ -44,8 +45,10 @@ public class FileUtil {
             // 执行上传操作
             try {
                 file.transferTo(file1);
+                System.out.println("FileUtil中传输文件成功");
                 return file1.getName();
             } catch (IOException e) {
+                System.out.println("FileUtil中传输文件失败");
                 e.printStackTrace();
                 return null;
             }

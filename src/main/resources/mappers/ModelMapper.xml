@@ -3,6 +3,52 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.nchu.mappers.ModelMapper">
     <select id="findModelByUserID" resultType="cn.edu.nchu.entity.ModelEntity">
-        select * from model_tab where userID = #{userID}
+        select * from model_tab where userID = #{userID} and deleteMark = 0;
     </select>
+
+    <select id="findModelByModelID" resultType="cn.edu.nchu.entity.ModelEntity">
+        select * from model_tab where modelID = #{modelID} and deleteMark = 0;
+    </select>
+
+    <select id="findModelByUserIDAndQueryParam" resultType="cn.edu.nchu.entity.ModelEntity">
+        <bind name="pattern" value="'%' + queryParam + '%'" />
+        select * from model_tab where userID = #{userID} and deleteMark = 0 and modelName LIKE #{pattern};
+    </select>
+
+    <select id="findDeleteModelByUserID" resultType="cn.edu.nchu.entity.ModelEntity">
+        select * from model_tab where userID = #{userID} and deleteMark = 1;
+    </select>
+
+
+    <insert id="insertModel" parameterType="cn.edu.nchu.entity.ModelEntity">
+		insert into model_tab values(null,#{modelName},#{modelHeight},#{modelWidth},#{userID},#{modelCreateTime},#{modelUrl},#{recognizeCount},#{deleteMark})
+	</insert>
+
+    <update id="updateRecognizeCountByModelID">
+        update model_tab set recognizeCount = #{recognizeCount} where modelID = #{modelID}
+    </update>
+
+    <!--将deleteMark更新为2表示彻底删除-->
+    <update id="deleteModelByModelID">
+        update model_tab set deleteMark = 2 where modelID = #{modelID}
+    </update>
+
+
+    <update id="moveToDeleteModelArea">
+        update model_tab set deleteMark = 1 where modelID = #{modelID}
+    </update>
+
+    <update id="recoverModel">
+        update model_tab set deleteMark = 0 where modelID = #{modelID}
+    </update>
+
+    <!--清空回收站  将deleteMark更新为2表示彻底删除-->
+    <update id="deleteAllModelInDeleteModelArea">
+        update model_tab set deleteMark = 2 where userID = #{userID} and deleteMark = 1
+    </update>
+
+    <select id="findModelUrlByModelID" resultType="java.lang.String">
+        select modelUrl from model_tab where modelID = #{modelID}
+    </select>
+
 </mapper>
